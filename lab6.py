@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 np.random.seed(0)
 true_k = 2.5
 true_b = 1.0
+
+sergserg
 x = np.random.rand(100) * 10
 noise = np.random.randn(100)
 y = true_k * x + true_b + noise

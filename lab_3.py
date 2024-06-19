@@ -10,25 +10,26 @@ def create_data_frame(folder_path):
     headers = ['Year', 'Week', 'SMN', 'SMT', 'VCI', 'TCI', 'VHI', 'empty']
     frames = []
 
-    for file in csv_files:
-        region_id = int(file.split('__')[1])
-        df = pd.read_csv(file, header=1, names=headers)
-        df.at[0, 'Year'] = df.at[0, 'Year'][9:]
-        df = df.drop(df.index[-1])
-        df = df.drop(df.loc[df['VHI'] == -1].index)
-        df = df.drop('empty', axis=1)
-        df.insert(0, 'region_id', region_id, True)
-        df['Week'] = df['Week'].astype(int)
-        frames.append(df)
-    result = pd.concat(frames).drop_duplicates().reset_index(drop=True)
-    result = result.loc[(result.region_id != 12) & (result.region_id != 20)]
-    result = result.replace({'region_id': {1: 22, 2: 24, 3: 23, 4: 25, 5: 3, 6: 4, 7: 8, 8: 19, 9: 20, 10: 21,
-                                           11: 9, 13: 10, 14: 11, 15: 12, 16: 13, 17: 14, 18: 15, 19: 16, 21: 17,
-                                           22: 18, 23: 6, 24: 1, 25: 2, 26: 6, 27: 5}})
+    # for file in csv_files:
+    #     region_id = int(file.split('__')[1])
+    #     df = pd.read_csv(file, header=1, names=headers)
+    #     df.at[0, 'Year'] = df.at[0, 'Year'][9:]
+    #     df = df.drop(df.index[-1])
+    #     df = df.drop(df.loc[df['VHI'] == -1].index)
+    #     df = df.drop('empty', axis=1)
+    #     df.insert(0, 'region_id', region_id, True)
+    #     df['Week'] = df['Week'].astype(int)
+    #     frames.append(df)
+    # result = pd.concat(frames).drop_duplicates().reset_index(drop=True)
+    # result = result.loc[(result.region_id != 12) & (result.region_id != 20)]
+    # result = result.replace({'region_id': {1: 22, 2: 24, 3: 23, 4: 25, 5: 3, 6: 4, 7: 8, 8: 19, 9: 20, 10: 21,
+    #                                        11: 9, 13: 10, 14: 11, 15: 12, 16: 13, 17: 14, 18: 15, 19: 16, 21: 17,
+    #                                        22: 18, 23: 6, 24: 1, 25: 2, 26: 6, 27: 5}})
+    result = pd.read_csv('output.csv')
     return result
 
 
-df = create_data_frame('../lab_2/download')
+df = create_data_frame('..')
 
 reg_id_name = {
     1: 'Вінницька', 2: 'Волинська', 3: 'Дніпропетровська', 4: 'Донецька', 5: 'Житомирська',
@@ -90,8 +91,7 @@ class SimpleApp(server.App):
 
         df_year = df[(df['Year'].astype(int).between(int(years[0]), int(years[1]))) &
                      (df['Week'].between(int(weeks_interval[0]), int(weeks_interval[1]))) &
-                     (df['region_id'] == region_id)][['Week', parameter]].set_index('Week')
-
+                     (df['region_id'] == region_id)][['Year','Week', parameter]]
         return df_year
 
     def getPlot(self, params):
@@ -105,15 +105,32 @@ class SimpleApp(server.App):
 
         legend_years = []
         for year in range(int(years[0]), int(years[1]) + 1):
-            df_year = df[(df['Year'] == str(year)) &
+            df_year = df[(df['Year'] == year) &
                          (df['Week'].between(int(weeks_interval[0]), int(weeks_interval[1]))) &
                          (df['region_id'] == region_id)][['Week', parameter]].set_index('Week')
             df_year.plot(ax=ax, label=str(year), grid=True)
+            #df_year.plot.hist(ax=ax, label=str(year), grid=True, alpha = 0.5)
             legend_years.append(year)
 
         ax.set_xlabel("Weeks")
         ax.set_ylabel(parameter)
         ax.legend(legend_years, title='Year', bbox_to_anchor=(1.05, 1), loc='upper left')
+
+        # legend_years = []
+        # df_temp = self.getData(params)
+        # for year in range(int(years[0]), int(years[1]) + 1):
+
+        #     df_year = df_temp[(df_temp['Year'] == year)][['Year','Week', parameter]]
+
+        #     # df_year = df[(df['Year'] == str(year)) &
+        #     #              (df['Week'].between(int(weeks_interval[0]), int(weeks_interval[1]))) &
+        #     #              (df['region_id'] == region_id)][['Week', parameter]].set_index('Week')
+        #     df_year.plot(ax=ax, label=str(year), grid=True)
+        #     #legend_years.append(year)
+
+        # ax.set_xlabel("Weeks")
+        # ax.set_ylabel(parameter)
+        # ax.legend(legend_years, title='Year', bbox_to_anchor=(1.05, 1), loc='upper left')
 
         return fig
 

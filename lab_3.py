@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import glob
 
-
 def create_data_frame(folder_path):
     csv_files = glob.glob(folder_path + "/*.csv")
 
